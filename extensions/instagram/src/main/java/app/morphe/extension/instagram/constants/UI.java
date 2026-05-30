@@ -13,6 +13,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import java.util.ArrayList;
@@ -57,14 +58,21 @@ public class UI {
         InstagramButton button = new InstagramButton(context);
         button.setText(Strings.PIKO_SETTINGS_TITLE);
         button.setStyle(InstagramButtonStyleEnum.SUPER_PRIMARY);
-        button.setOnClickListener(ActivityHook::startPikoActivity);
+        button.setOnClickListener(v -> ActivityHook.startPikoActivity());
 
         int marginPx = Dim.dp12;
         button.setMargins(marginPx, marginPx, marginPx, marginPx);
 
-        viewGroup.addView(button.getIgdsButton());
-        if(isFirstTime){
-            button.startPulseAnimation();
+        View igdsButton = button.getIgdsButton();
+        igdsButton.setVisibility(View.GONE);
+        viewGroup.addView(igdsButton);
+
+        viewGroup.setOnLongClickListener(v -> {
+            ActivityHook.startPikoActivity();
+            return true;
+        });
+
+        if (isFirstTime) {
             Pref.setFirstTimePiko(false);
         }
     }
@@ -80,12 +88,10 @@ public class UI {
             @Override
             public void onClick(DialogInterface d, int which) {
                 try {
-                    // Doing like this because options are dynamic.
                     String selectedOption = options.get(which);
 
                     if (selectedOption.equals(Strings.OK)) {
                         Utils.restartApp(context);
-
                     }
                 } catch (Exception e) {
                     Logger.printException(() -> "Error at restartDialogBox", e);
@@ -93,7 +99,6 @@ public class UI {
                 }
             }
         });
-
 
         dialog.setTitle(Strings.RESTART_APP);
         dialog.setCancelable(false);
@@ -114,7 +119,6 @@ public class UI {
             @Override
             public void onClick(DialogInterface d, int which) {
                 try {
-                    // Doing like this because options are dynamic.
                     String selectedOption = options.get(which);
 
                     if (selectedOption.equals(Strings.GOTO_PIKO_SETTINGS)) {
